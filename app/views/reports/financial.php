@@ -1,0 +1,1 @@
+<h1>Financial Report</h1><p>Starter view for Financial Report module.</p>
