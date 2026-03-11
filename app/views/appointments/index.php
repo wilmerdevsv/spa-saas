@@ -1,0 +1,1 @@
+<h1>Appointment Calendar</h1><p>Starter view for Appointment Calendar module.</p>

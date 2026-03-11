@@ -1,0 +1,1 @@
+<h1>Tenants</h1><p>Starter view for Tenants module.</p>

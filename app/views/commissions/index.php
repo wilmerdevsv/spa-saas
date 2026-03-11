@@ -1,0 +1,1 @@
+<h1>Commissions</h1><p>Starter view for Commissions module.</p>

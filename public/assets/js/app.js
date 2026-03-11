@@ -1,0 +1,1 @@
+document.addEventListener('DOMContentLoaded',()=>{const c=document.getElementById('revenueChart');if(!c)return;const x=c.getContext('2d');x.fillStyle='#0d6efd';[120,180,140,200,220,260].forEach((h,i)=>x.fillRect(20+i*40,280-h,20,h));});

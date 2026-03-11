@@ -1,0 +1,1 @@
+<h1>Payments</h1><p>Starter view for Payments module.</p>
