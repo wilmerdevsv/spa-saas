@@ -1,0 +1,1 @@
+<h1>Customers</h1><p>Starter view for Customers module.</p>

@@ -1,0 +1,1 @@
+<h1>Inventory</h1><p>Starter view for Inventory module.</p>

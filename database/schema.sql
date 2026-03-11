@@ -1,0 +1,202 @@
+CREATE DATABASE IF NOT EXISTS spa_saas CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE spa_saas;
+
+CREATE TABLE IF NOT EXISTS tenants (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  status VARCHAR(30) NOT NULL DEFAULT 'active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS users (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tenant_id BIGINT UNSIGNED NOT NULL,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(190) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  role ENUM('admin','staff','therapist','superadmin') NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_users_tenant (tenant_id)
+);
+
+CREATE TABLE IF NOT EXISTS customers (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tenant_id BIGINT UNSIGNED NOT NULL,
+  name VARCHAR(120) NOT NULL,
+  phone VARCHAR(40) NULL,
+  email VARCHAR(190) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_customers_tenant (tenant_id)
+);
+
+CREATE TABLE IF NOT EXISTS therapists (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tenant_id BIGINT UNSIGNED NOT NULL,
+  name VARCHAR(120) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_therapists_tenant (tenant_id)
+);
+
+CREATE TABLE IF NOT EXISTS services (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tenant_id BIGINT UNSIGNED NOT NULL,
+  name VARCHAR(120) NOT NULL,
+  price DECIMAL(10,2) NOT NULL DEFAULT 0,
+  duration_minutes INT NOT NULL DEFAULT 60,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_services_tenant (tenant_id)
+);
+
+CREATE TABLE IF NOT EXISTS appointments (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tenant_id BIGINT UNSIGNED NOT NULL,
+  customer_id BIGINT UNSIGNED NULL,
+  therapist_id BIGINT UNSIGNED NULL,
+  start_time DATETIME NOT NULL,
+  end_time DATETIME NOT NULL,
+  notes TEXT NULL,
+  status VARCHAR(30) NOT NULL DEFAULT 'scheduled',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_appointments_tenant (tenant_id)
+);
+
+CREATE TABLE IF NOT EXISTS appointment_services (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tenant_id BIGINT UNSIGNED NOT NULL,
+  appointment_id BIGINT UNSIGNED NOT NULL,
+  service_id BIGINT UNSIGNED NOT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_appointment_services_tenant (tenant_id)
+);
+
+CREATE TABLE IF NOT EXISTS sales (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tenant_id BIGINT UNSIGNED NOT NULL,
+  customer_id BIGINT UNSIGNED NULL,
+  total DECIMAL(10,2) NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL,
+  INDEX idx_sales_tenant (tenant_id)
+);
+
+CREATE TABLE IF NOT EXISTS sale_items (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tenant_id BIGINT UNSIGNED NOT NULL,
+  sale_id BIGINT UNSIGNED NOT NULL,
+  service_id BIGINT UNSIGNED NULL,
+  therapist_id BIGINT UNSIGNED NULL,
+  quantity INT NOT NULL DEFAULT 1,
+  price DECIMAL(10,2) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_sale_items_tenant (tenant_id)
+);
+
+CREATE TABLE IF NOT EXISTS payments (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tenant_id BIGINT UNSIGNED NOT NULL,
+  sale_id BIGINT UNSIGNED NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  method VARCHAR(30) NOT NULL DEFAULT 'cash',
+  paid_at DATETIME NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_payments_tenant (tenant_id)
+);
+
+CREATE TABLE IF NOT EXISTS products (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tenant_id BIGINT UNSIGNED NOT NULL,
+  name VARCHAR(150) NOT NULL,
+  stock_qty INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_products_tenant (tenant_id)
+);
+
+CREATE TABLE IF NOT EXISTS stock_movements (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tenant_id BIGINT UNSIGNED NOT NULL,
+  product_id BIGINT UNSIGNED NOT NULL,
+  movement_type ENUM('in','out','adjustment') NOT NULL,
+  quantity INT NOT NULL,
+  notes VARCHAR(255) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_stock_movements_tenant (tenant_id)
+);
+
+CREATE TABLE IF NOT EXISTS commission_rules (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tenant_id BIGINT UNSIGNED NOT NULL,
+  therapist_id BIGINT UNSIGNED NULL,
+  service_id BIGINT UNSIGNED NULL,
+  type ENUM('percentage','fixed') NOT NULL DEFAULT 'percentage',
+  percentage DECIMAL(5,2) NULL,
+  fixed_amount DECIMAL(10,2) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_commission_rules_tenant (tenant_id)
+);
+
+CREATE TABLE IF NOT EXISTS commissions (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tenant_id BIGINT UNSIGNED NOT NULL,
+  therapist_id BIGINT UNSIGNED NOT NULL,
+  sale_item_id BIGINT UNSIGNED NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  status VARCHAR(30) NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_commissions_tenant (tenant_id)
+);
+
+CREATE TABLE IF NOT EXISTS commission_settlements (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tenant_id BIGINT UNSIGNED NOT NULL,
+  therapist_id BIGINT UNSIGNED NOT NULL,
+  total_amount DECIMAL(10,2) NOT NULL,
+  settled_at DATETIME NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_commission_settlements_tenant (tenant_id)
+);
+
+CREATE TABLE IF NOT EXISTS plans (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  monthly_price DECIMAL(10,2) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS subscriptions (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tenant_id BIGINT UNSIGNED NOT NULL,
+  plan_id BIGINT UNSIGNED NOT NULL,
+  status VARCHAR(30) NOT NULL DEFAULT 'active',
+  started_at DATETIME NULL,
+  ended_at DATETIME NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_subscriptions_tenant (tenant_id)
+);
+
+CREATE TABLE IF NOT EXISTS invoices (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tenant_id BIGINT UNSIGNED NOT NULL,
+  total DECIMAL(10,2) NOT NULL,
+  status VARCHAR(30) NOT NULL DEFAULT 'pending',
+  due_date DATE NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_invoices_tenant (tenant_id)
+);
+
+CREATE TABLE IF NOT EXISTS invoice_payments (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tenant_id BIGINT UNSIGNED NOT NULL,
+  invoice_id BIGINT UNSIGNED NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  paid_at DATETIME NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_invoice_payments_tenant (tenant_id)
+);
+
+INSERT INTO tenants (name, status)
+SELECT 'Demo Spa', 'active'
+WHERE NOT EXISTS (SELECT 1 FROM tenants WHERE id = 1);
+
+INSERT INTO users (tenant_id, name, email, password, role)
+SELECT 1, 'Super Admin', 'superadmin@spa.local', '$2y$12$3CCi4pdxt5x1Vaz0av1/puXXDlWKMOfdWV1HwKV8zPw1QBgCQ1Dny', 'superadmin'
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'superadmin@spa.local');

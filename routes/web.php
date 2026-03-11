@@ -1,0 +1,35 @@
+<?php
+declare(strict_types=1);
+use App\Controllers\{AuthController,DashboardController,CustomersController,TherapistsController,ServicesController,AppointmentsController,SalesController,PaymentsController,InventoryController,CommissionsController,ReportsController,AdminController};
+return static function(App\Core\Router $router): void {
+$router->get('/login',[AuthController::class,'showLogin']);
+$router->post('/login',[AuthController::class,'login']);
+$router->post('/logout',[AuthController::class,'logout'],['auth']);
+$router->get('/dashboard',[DashboardController::class,'index'],['auth']);
+$router->get('/customers',[CustomersController::class,'index'],['auth']);
+$router->post('/customers/create',[CustomersController::class,'create'],['auth','admin']);
+$router->get('/therapists',[TherapistsController::class,'index'],['auth']);
+$router->post('/therapists/create',[TherapistsController::class,'create'],['auth','admin']);
+$router->get('/services',[ServicesController::class,'index'],['auth']);
+$router->post('/services/create',[ServicesController::class,'create'],['auth','admin']);
+$router->get('/appointments',[AppointmentsController::class,'index'],['auth']);
+$router->post('/appointments/create',[AppointmentsController::class,'create'],['auth']);
+$router->put('/appointments/{id}',[AppointmentsController::class,'update'],['auth']);
+$router->delete('/appointments/{id}',[AppointmentsController::class,'delete'],['auth','admin']);
+$router->get('/sales',[SalesController::class,'index'],['auth']);
+$router->post('/sales/create',[SalesController::class,'create'],['auth']);
+$router->get('/payments',[PaymentsController::class,'index'],['auth']);
+$router->post('/payments',[PaymentsController::class,'create'],['auth']);
+$router->get('/inventory',[InventoryController::class,'index'],['auth']);
+$router->post('/inventory/movement',[InventoryController::class,'movement'],['auth','admin']);
+$router->get('/commissions',[CommissionsController::class,'index'],['auth']);
+$router->post('/commissions/settle',[CommissionsController::class,'settle'],['auth','admin']);
+$router->get('/reports/financial',[ReportsController::class,'financial'],['auth','admin']);
+$router->get('/admin/tenants',[AdminController::class,'tenants'],['auth','superadmin']);
+$router->post('/admin/tenants/create',[AdminController::class,'createTenant'],['auth','superadmin']);
+$router->post('/admin/tenants/suspend',[AdminController::class,'suspendTenant'],['auth','superadmin']);
+$router->get('/admin/plans',[AdminController::class,'plans'],['auth','superadmin']);
+$router->post('/admin/plans/create',[AdminController::class,'createPlan'],['auth','superadmin']);
+$router->get('/admin/invoices',[AdminController::class,'invoices'],['auth','superadmin']);
+$router->post('/admin/invoices/generate',[AdminController::class,'generateInvoice'],['auth','superadmin']);
+};

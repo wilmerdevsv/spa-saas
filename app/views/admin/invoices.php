@@ -1,0 +1,1 @@
+<h1>Invoices</h1><p>Starter view for Invoices module.</p>

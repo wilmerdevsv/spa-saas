@@ -1,0 +1,1 @@
+<h1>Plans</h1><p>Starter view for Plans module.</p>
